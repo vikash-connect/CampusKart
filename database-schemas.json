@@ -1,0 +1,85 @@
+{
+  "_comment": "These schemas are designed for offline WhatsApp communication and student ID verification for the CampusKart peer-to-peer marketplace.",
+  "Users": {
+    "bsonType": "object",
+    "required": ["name", "email", "whatsappNumber", "studentIdUrl"],
+    "properties": {
+      "_id": {
+        "description": "Unique identifier for the user"
+      },
+      "name": {
+        "bsonType": "string",
+        "description": "Full name of the student"
+      },
+      "email": {
+        "bsonType": "string",
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        "description": "Unique email address (must be a valid format)"
+      },
+      "whatsappNumber": {
+        "bsonType": "string",
+        "description": "Primary contact number for peer-to-peer transactions"
+      },
+      "studentIdUrl": {
+        "bsonType": "string",
+        "description": "Cloudinary/S3 URL of the uploaded Student ID for verification"
+      },
+      "isVerified": {
+        "bsonType": "bool",
+        "description": "Status of student verification, defaults to false"
+      },
+      "createdAt": {
+        "bsonType": "date",
+        "description": "Timestamp of account creation"
+      }
+    }
+  },
+  "Listings": {
+    "bsonType": "object",
+    "required": ["sellerId", "title", "price", "category", "condition"],
+    "properties": {
+      "_id": {
+        "description": "Unique identifier for the listing"
+      },
+      "sellerId": {
+        "bsonType": "objectId",
+        "description": "Reference to the _id of the User who created the listing"
+      },
+      "title": {
+        "bsonType": "string",
+        "description": "Title of the item being sold"
+      },
+      "description": {
+        "bsonType": "string",
+        "description": "Detailed description of the item"
+      },
+      "price": {
+        "bsonType": "double",
+        "description": "Asking price for display (actual payment is offline)"
+      },
+      "category": {
+        "bsonType": "string",
+        "description": "Category (e.g., Books, Electronics, Stationery)"
+      },
+      "condition": {
+        "bsonType": "string",
+        "description": "Condition of the item (e.g., New, Like New, Good, Used)"
+      },
+      "images": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "string"
+        },
+        "description": "Array of URLs for item images"
+      },
+      "status": {
+        "enum": ["available", "sold", "reserved"],
+        "description": "Current status of the listing, defaults to available"
+      },
+      "createdAt": {
+        "bsonType": "date",
+        "description": "Timestamp of listing creation"
+      }
+    }
+  }
+}
