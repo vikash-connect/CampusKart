@@ -2,39 +2,39 @@
 
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { LogIn } from "lucide-react";
 
 export default function SignInPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/signin-bg.png"
-          alt="CampusKart Background"
-          fill
-          className="object-cover opacity-60 blur-sm"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/40 via-transparent to-background/40" />
-      </div>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 font-sans">
+      {/* Background Texture - Grid Pattern */}
+      <div 
+        className="absolute inset-0 z-0 opacity-[0.03]" 
+        style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, #ffffff 1px, transparent 0)`,
+          backgroundSize: '32px 32px'
+        }}
+      />
+      
+      {/* Subtle Glows */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[128px] -z-10 animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[128px] -z-10 animate-pulse" />
 
       {/* Sign-In Card */}
       <div className="relative z-10 w-full max-w-md px-6">
-        <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl dark:bg-black/20">
-          <div className="mb-8 text-center">
-            <h1 className="mb-2 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+        <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-black/40 p-10 shadow-2xl backdrop-blur-md">
+          <div className="mb-10 text-center">
+            <h1 className="mb-3 text-3xl font-bold tracking-tighter text-white md:text-4xl">
               CampusKart
             </h1>
-            <p className="text-lg font-medium text-muted-foreground">
-              Welcome to the Campus Marketplace
+            <p className="text-sm font-medium text-zinc-400">
+              The professional marketplace for students.
             </p>
           </div>
 
           <div className="space-y-4">
             <button
               onClick={() => signIn("google", { callbackUrl: "/" })}
-              className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-4 text-sm font-semibold text-black shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] dark:bg-zinc-900 dark:text-white"
+              className="group relative flex w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3.5 text-sm font-bold text-black transition-all duration-200 hover:bg-zinc-200 active:scale-[0.98]"
             >
               <svg
                 className="h-5 w-5"
@@ -59,28 +59,29 @@ export default function SignInPage() {
                 />
               </svg>
               <span>Continue with Google</span>
-              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-white/5" />
             </button>
           </div>
 
-          <div className="mt-8 text-center text-xs text-muted-foreground">
+          <div className="mt-10 text-center text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">
             <p>
               By signing in, you agree to our{" "}
-              <a href="#" className="underline hover:text-foreground">
-                Terms of Service
+              <a href="#" className="text-zinc-300 hover:text-white transition-colors">
+                Terms
               </a>{" "}
-              and{" "}
-              <a href="#" className="underline hover:text-foreground">
-                Privacy Policy
+              &{" "}
+              <a href="#" className="text-zinc-300 hover:text-white transition-colors">
+                Privacy
               </a>
-              .
             </p>
           </div>
         </div>
-
-        {/* Decorative elements */}
-        <div className="absolute -right-4 -top-4 -z-10 h-24 w-24 rounded-full bg-primary/20 blur-2xl" />
-        <div className="absolute -bottom-4 -left-4 -z-10 h-32 w-32 rounded-full bg-secondary/20 blur-2xl" />
+        
+        {/* Version / Bottom Text */}
+        <div className="mt-8 text-center">
+          <span className="text-[10px] text-zinc-600 font-mono tracking-tighter">
+            CAMPUSKART.CORE.V1.0.4
+          </span>
+        </div>
       </div>
     </div>
   );
