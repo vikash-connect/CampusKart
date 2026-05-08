@@ -2,10 +2,21 @@ import StudentIdUpload from "@/components/StudentIdUpload";
 
 export default function TestUploadPage() {
   return (
-    <main className="min-h-screen bg-zinc-950 py-24 px-6 relative overflow-hidden font-sans">
+    <main className="relative min-h-screen py-24 px-6 overflow-hidden bg-slate-950 z-0 font-sans">
+      {/* Background Flares */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {/* Main Top Flare */}
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] max-w-3xl h-[300px] bg-blue-500/20 blur-[120px] rounded-full animate-float" />
+        
+        {/* Random Side Flares */}
+        <div className="absolute top-[20%] right-[-10%] w-[40%] h-[400px] bg-indigo-500/10 blur-[100px] rounded-full animate-float [animation-delay:3s]" />
+        <div className="absolute bottom-[20%] left-[-10%] w-[50%] h-[500px] bg-blue-600/10 blur-[120px] rounded-full animate-float [animation-delay:6s]" />
+        <div className="absolute bottom-[-10%] right-[10%] w-[35%] h-[350px] bg-slate-500/10 blur-[90px] rounded-full animate-float [animation-delay:9s]" />
+      </div>
+
       {/* Background Texture - Subtle Grid */}
       <div 
-        className="absolute inset-0 z-0 opacity-[0.03]" 
+        className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
         style={{
           backgroundImage: `radial-gradient(circle at 2px 2px, #ffffff 1px, transparent 0)`,
           backgroundSize: '40px 40px'

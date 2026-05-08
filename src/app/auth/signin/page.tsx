@@ -5,19 +5,26 @@ import Image from "next/image";
 
 export default function SignInPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 font-sans">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 z-0 font-sans">
+      {/* Background Flares */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {/* Main Top Flare */}
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] max-w-3xl h-[300px] bg-blue-500/20 blur-[120px] rounded-full animate-float" />
+        
+        {/* Random Side Flares */}
+        <div className="absolute top-[20%] left-[-10%] w-[40%] h-[400px] bg-purple-500/10 blur-[100px] rounded-full animate-float [animation-delay:2s]" />
+        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[500px] bg-blue-600/10 blur-[120px] rounded-full animate-float [animation-delay:5s]" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[30%] h-[300px] bg-emerald-500/10 blur-[80px] rounded-full animate-float [animation-delay:8s]" />
+      </div>
+      
       {/* Background Texture - Grid Pattern */}
       <div 
-        className="absolute inset-0 z-0 opacity-[0.03]" 
+        className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
         style={{
           backgroundImage: `radial-gradient(circle at 2px 2px, #ffffff 1px, transparent 0)`,
           backgroundSize: '32px 32px'
         }}
       />
-      
-      {/* Subtle Glows */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[128px] -z-10 animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[128px] -z-10 animate-pulse" />
 
       {/* Sign-In Card */}
       <div className="relative z-10 w-full max-w-md px-6">
