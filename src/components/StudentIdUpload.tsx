@@ -55,22 +55,22 @@ export default function StudentIdUpload() {
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
-        className={`relative group cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 p-8 flex flex-col items-center justify-center min-h-[260px] ${
+        className={`relative group cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 p-8 flex flex-col items-center justify-center min-h-[280px] ${
           isDragging
-            ? "border-primary bg-primary/5 scale-[1.01]"
-            : "border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30"
-        } ${file ? "border-green-500/50 bg-green-500/5" : ""}`}
+            ? "border-white/40 bg-white/5 scale-[1.01]"
+            : "border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
+        } ${file ? "border-emerald-500/30 bg-emerald-500/5" : "bg-black/20"}`}
       >
         {!file ? (
           <>
-            <div className="mb-4 p-4 rounded-full bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
-              <UploadCloud size={40} />
+            <div className="mb-5 p-4 rounded-full bg-zinc-800/50 text-zinc-300 transition-transform duration-300 group-hover:scale-110 group-hover:text-white">
+              <UploadCloud size={40} strokeWidth={1.5} />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
               Upload Student ID
             </h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-xs">
-              Drag and drop your student ID card here, or click to browse.
+            <p className="text-zinc-400 text-center mb-6 max-w-xs text-sm leading-relaxed">
+              Drag and drop your student ID card here, or click to browse files.
             </p>
             <input
               type="file"
@@ -81,14 +81,14 @@ export default function StudentIdUpload() {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg shadow-primary/20 hover:opacity-90 transition-all active:scale-95"
+              className="px-8 py-2.5 bg-white text-black rounded-lg font-bold shadow-lg hover:bg-zinc-200 transition-all active:scale-95 text-sm"
             >
               Browse Files
             </button>
           </>
         ) : (
           <div className="w-full flex flex-col items-center">
-            <div className="relative w-full aspect-video max-h-[200px] rounded-xl overflow-hidden border border-border shadow-md mb-4 bg-muted">
+            <div className="relative w-full aspect-video max-h-[220px] rounded-xl overflow-hidden border border-zinc-800 shadow-2xl mb-5 bg-zinc-950">
               {previewUrl && (
                 <Image
                   src={previewUrl}
@@ -102,35 +102,34 @@ export default function StudentIdUpload() {
                   e.stopPropagation();
                   removeFile();
                 }}
-                className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full shadow-lg hover:scale-110 transition-transform"
+                className="absolute top-3 right-3 p-1.5 bg-zinc-900/80 text-white rounded-full backdrop-blur-md border border-white/10 hover:bg-zinc-800 transition-all hover:scale-110"
                 title="Remove image"
               >
                 <X size={16} />
               </button>
             </div>
-            <div className="flex items-center gap-2 text-green-600 font-medium">
+            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
               <CheckCircle2 size={18} />
               <span>{file.name}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {(file.size / 1024 / 1024).toFixed(2)} MB
+            <p className="text-[10px] text-zinc-500 font-mono mt-2 uppercase tracking-widest">
+              {(file.size / 1024 / 1024).toFixed(2)} MB • READY
             </p>
           </div>
         )}
       </div>
 
       {/* Trust Badge / Disclaimer */}
-      <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 border border-border">
-        <div className="mt-0.5 text-primary">
-          <IdCard size={20} />
+      <div className="flex items-start gap-4 p-5 rounded-2xl bg-black/40 border border-zinc-800 backdrop-blur-md">
+        <div className="mt-1 text-zinc-400">
+          <IdCard size={20} strokeWidth={1.5} />
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">
-            Verification Required
+          <p className="text-sm font-bold text-white tracking-tight">
+            Identity Verification
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            Your ID is used only for verification and is never shared with other
-            users. It helps maintain a safe community for everyone.
+          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            Your ID is used strictly for internal verification purposes. It is encrypted, never shared with other users, and deleted after validation.
           </p>
         </div>
       </div>
