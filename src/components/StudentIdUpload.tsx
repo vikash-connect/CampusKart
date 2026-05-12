@@ -8,13 +8,39 @@ export default function StudentIdUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (selectedFile: File) => {
+  const handleFileChange = async (selectedFile: File) => {
     if (selectedFile && selectedFile.type.startsWith("image/")) {
-      setFile(selectedFile);
-      const url = URL.createObjectURL(selectedFile);
-      setPreviewUrl(url);
+      setIsUploading(true);
+      setIsUploaded(false);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("Upload failed");
+
+        const data = await response.json();
+        console.log("Cloudinary URL:", data.secure_url);
+
+        setFile(selectedFile);
+        const url = URL.createObjectURL(selectedFile);
+        setPreviewUrl(url);
+        setIsUploaded(true);
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("Failed to upload image. Please try again.");
+      } finally {
+        setIsUploading(false);
+      }
     } else {
       alert("Please upload a valid image file (JPG, PNG).");
     }
@@ -47,6 +73,7 @@ export default function StudentIdUpload() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setIsUploaded(false);
   };
 
   return (
@@ -81,9 +108,10 @@ export default function StudentIdUpload() {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-8 py-2.5 bg-white text-black rounded-lg font-bold shadow-lg hover:bg-zinc-200 transition-all active:scale-95 text-sm"
+              disabled={isUploading}
+              className="px-8 py-2.5 bg-white text-black rounded-lg font-bold shadow-lg hover:bg-zinc-200 transition-all active:scale-95 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Browse Files
+              {isUploading ? "Uploading..." : "Browse Files"}
             </button>
           </>
         ) : (
@@ -110,10 +138,10 @@ export default function StudentIdUpload() {
             </div>
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
               <CheckCircle2 size={18} />
-              <span>{file.name}</span>
+              <span>{isUploaded ? "Verification Successful" : file.name}</span>
             </div>
             <p className="text-[10px] text-zinc-500 font-mono mt-2 uppercase tracking-widest">
-              {(file.size / 1024 / 1024).toFixed(2)} MB • READY
+              {(file.size / 1024 / 1024).toFixed(2)} MB • {isUploaded ? "VERIFIED" : "READY"}
             </p>
           </div>
         )}

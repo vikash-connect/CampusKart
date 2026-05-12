@@ -12,6 +12,7 @@
     "@auth/mongodb-adapter": "^3.11.2",
     "@base-ui/react": "^1.4.1",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
     "lucide-react": "^1.14.0",
     "mongodb": "^6.21.0",
