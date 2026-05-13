@@ -1,6 +1,32 @@
 import StudentIdUpload from "@/components/StudentIdUpload";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
-export default function TestUploadPage() {
+export default async function TestUploadPage() {
+  const session = await getServerSession(authOptions);
+  let initialIsVerified = false;
+  let initialIdUrl = null;
+
+  if (session?.user) {
+    try {
+      const client = await clientPromise;
+      const db = client.db();
+      // @ts-ignore
+      const user = await db.collection("users").findOne({ 
+        _id: new ObjectId(session.user.id) 
+      });
+      
+      if (user) {
+        initialIsVerified = user.isVerified || false;
+        initialIdUrl = user.studentIdUrl || null;
+      }
+    } catch (error) {
+      console.error("Error fetching initial verification state:", error);
+    }
+  }
+
   return (
     <main className="relative min-h-screen py-24 px-6 overflow-hidden bg-slate-950 z-0 font-sans">
       {/* Background Flares */}
@@ -33,7 +59,10 @@ export default function TestUploadPage() {
       </div>
 
       <div className="relative z-10 flex flex-col items-center">
-        <StudentIdUpload />
+        <StudentIdUpload 
+          initialIsVerified={initialIsVerified} 
+          initialIdUrl={initialIdUrl} 
+        />
       </div>
 
       <div className="relative z-10 mt-20 max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">

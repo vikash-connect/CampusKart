@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -10,6 +14,16 @@ cloudinary.config({
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. Get Session
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 2. Get File from Request
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -20,26 +34,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert file to base64 for Cloudinary upload
+    // 3. Convert file to base64 for Cloudinary upload
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    
-    // Create a data URI for the upload
     const base64Image = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    // Upload to Cloudinary
+    // 4. Upload to Cloudinary
     const result = await cloudinary.uploader.upload(base64Image, {
       folder: "campus-kart/student-ids",
     });
 
+    // 5. Update MongoDB
+    const client = await clientPromise;
+    const db = client.db();
+    
+    // @ts-ignore - session.user.id is added in callbacks
+    const userId = session.user.id;
+
+    await db.collection("users").updateOne(
+      { _id: new ObjectId(userId) },
+      { 
+        $set: { 
+          studentIdUrl: result.secure_url,
+          isVerified: true 
+        } 
+      }
+    );
+
     return NextResponse.json({
       secure_url: result.secure_url,
-      public_id: result.public_id,
+      message: "Profile Updated",
     });
   } catch (error) {
-    console.error("Cloudinary upload error:", error);
+    console.error("Upload & Persistence error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error during upload" },
+      { error: "Internal Server Error during process" },
       { status: 500 }
     );
   }

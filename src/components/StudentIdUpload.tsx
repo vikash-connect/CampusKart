@@ -4,12 +4,18 @@ import React, { useState, useRef, useCallback } from "react";
 import { UploadCloud, IdCard, X, FileText, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
-export default function StudentIdUpload() {
+export default function StudentIdUpload({ 
+  initialIsVerified = false, 
+  initialIdUrl = null 
+}: { 
+  initialIsVerified?: boolean; 
+  initialIdUrl?: string | null 
+}) {
   const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialIdUrl);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isUploaded, setIsUploaded] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(initialIsVerified);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (selectedFile: File) => {
@@ -70,7 +76,7 @@ export default function StudentIdUpload() {
 
   const removeFile = () => {
     setFile(null);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setIsUploaded(false);
@@ -88,7 +94,7 @@ export default function StudentIdUpload() {
             : "border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
         } ${file ? "border-emerald-500/30 bg-emerald-500/5" : "bg-black/20"}`}
       >
-        {!file ? (
+        {!file && !isUploaded ? (
           <>
             <div className="mb-5 p-4 rounded-full bg-zinc-800/50 text-zinc-300 transition-transform duration-300 group-hover:scale-110 group-hover:text-white">
               <UploadCloud size={40} strokeWidth={1.5} />
@@ -138,10 +144,10 @@ export default function StudentIdUpload() {
             </div>
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
               <CheckCircle2 size={18} />
-              <span>{isUploaded ? "Verification Successful" : file.name}</span>
+              <span>{isUploaded ? "Profile Updated" : (file ? file.name : "Student ID")}</span>
             </div>
             <p className="text-[10px] text-zinc-500 font-mono mt-2 uppercase tracking-widest">
-              {(file.size / 1024 / 1024).toFixed(2)} MB • {isUploaded ? "VERIFIED" : "READY"}
+              {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB • ` : ""} {isUploaded ? "VERIFIED" : "READY"}
             </p>
           </div>
         )}
