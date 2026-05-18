@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { Package, IndianRupee, Tags, AlignLeft, Phone, UploadCloud, ArrowRight } from "lucide-react";
+import React, { useState, useCallback, useRef } from "react";
+import { Package, IndianRupee, Tags, AlignLeft, Phone, UploadCloud, ArrowRight, X, Loader2, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 export default function AddListingPage() {
   const [formData, setFormData] = useState({
@@ -13,11 +14,78 @@ export default function AddListingPage() {
   });
 
   const [isDragging, setIsDragging] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFiles = (newFiles: FileList | File[]) => {
+    const validFiles = Array.from(newFiles).filter((file) => file.type.startsWith("image/"));
+
+    if (files.length + validFiles.length > 4) {
+      alert("You can only upload a maximum of 4 images.");
+      return;
+    }
+
+    const newPreviewUrls = validFiles.map((file) => URL.createObjectURL(file));
+
+    setFiles((prev) => [...prev, ...validFiles]);
+    setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+  };
+
+  const removeImage = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const uploadImages = async () => {
+    const uploadedUrls: string[] = [];
+    for (const file of files) {
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+
+      const response = await fetch("/api/upload-listing-image", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+      uploadedUrls.push(data.secure_url);
+    }
+    return uploadedUrls;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    alert("Check console for form data. (UI-only mode)");
+    if (files.length === 0) {
+      alert("Please upload at least one image.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const cloudinaryUrls = await uploadImages();
+
+      const finalPayload = {
+        ...formData,
+        images: cloudinaryUrls,
+      };
+
+      console.log("🔥 FINAL COMPLETE PAYLOAD:", finalPayload);
+      alert("Check console for the complete payload including Cloudinary URLs!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload images. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -33,8 +101,17 @@ export default function AddListingPage() {
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    // Placeholder logic
-  }, []);
+    if (e.dataTransfer.files) {
+      handleFiles(e.dataTransfer.files);
+    }
+  }, [files]);
+
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      handleFiles(e.target.files);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/10 flex flex-col items-center justify-center p-6 relative overflow-hidden py-16">
@@ -167,47 +244,97 @@ export default function AddListingPage() {
             </div>
           </div>
 
-          {/* Image Upload Dropzone (UI Only) */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-zinc-500 uppercase tracking-widest ml-1">
-              Product Images
-            </label>
+          {/* Image Upload Dropzone */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-500 uppercase tracking-widest ml-1">
+                Product Images
+              </label>
+              <span className="text-xs text-zinc-500 font-medium">
+                {files.length} / 4
+              </span>
+            </div>
+            
             <div
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               onDrop={onDrop}
+              onClick={() => fileInputRef.current?.click()}
               className={`relative group cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 p-8 flex flex-col items-center justify-center min-h-[200px] ${
                 isDragging
                   ? "border-white/40 bg-white/5 scale-[1.01]"
-                  : "border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 bg-black/20"
+                  : files.length >= 4 
+                    ? "border-zinc-800 bg-zinc-900/50 opacity-50 cursor-not-allowed"
+                    : "border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 bg-black/20"
               }`}
             >
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={onFileSelect}
+                disabled={files.length >= 4 || isUploading}
+                className="hidden"
+              />
               <div className="mb-4 p-3 rounded-full bg-zinc-800/50 text-zinc-300 transition-transform duration-300 group-hover:scale-110 group-hover:text-white">
                 <UploadCloud size={32} strokeWidth={1.5} />
               </div>
               <h3 className="text-lg font-bold text-white mb-1 tracking-tight">
-                Upload Images
+                {files.length >= 4 ? "Max Images Reached" : "Upload Images"}
               </h3>
               <p className="text-zinc-400 text-center max-w-xs text-sm leading-relaxed mb-4">
                 Drag & drop product images here, or click to browse. (Max 4 images)
               </p>
-              <button
-                type="button"
-                className="px-6 py-2 bg-zinc-800 text-white rounded-lg font-semibold shadow-sm hover:bg-zinc-700 transition-all active:scale-95 text-xs"
-              >
-                Browse Files
-              </button>
             </div>
+
+            {/* Image Previews */}
+            {previewUrls.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                {previewUrls.map((url, index) => (
+                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-zinc-800 group bg-zinc-950">
+                    <Image
+                      src={url}
+                      alt={`Preview ${index + 1}`}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage(index);
+                      }}
+                      disabled={isUploading}
+                      className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:scale-110 transition-all duration-300 disabled:opacity-0"
+                    >
+                      <X size={14} strokeWidth={3} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full relative group overflow-hidden bg-white text-black font-bold py-4 rounded-xl transition-all hover:bg-zinc-200 active:scale-[0.98] mt-4"
+            disabled={isUploading || files.length === 0}
+            className="w-full relative group overflow-hidden bg-white text-black font-bold py-4 rounded-xl transition-all hover:bg-zinc-200 active:scale-[0.98] mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             <div className="relative flex items-center justify-center gap-2">
-              <span>Post Listing</span>
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              {isUploading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  <span>Uploading to Cloudinary...</span>
+                </>
+              ) : (
+                <>
+                  <span>Post Listing</span>
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </div>
           </button>
         </form>
