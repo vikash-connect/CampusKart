@@ -6,10 +6,12 @@ import Image from "next/image";
 
 export default function StudentIdUpload({ 
   initialIsVerified = false, 
-  initialIdUrl = null 
+  initialIdUrl = null,
+  onUploadSuccess
 }: { 
   initialIsVerified?: boolean; 
-  initialIdUrl?: string | null 
+  initialIdUrl?: string | null;
+  onUploadSuccess?: (url: string) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialIdUrl);
@@ -41,6 +43,7 @@ export default function StudentIdUpload({
         const url = URL.createObjectURL(selectedFile);
         setPreviewUrl(url);
         setIsUploaded(true);
+        if (onUploadSuccess) onUploadSuccess(data.secure_url);
       } catch (error) {
         console.error("Upload error:", error);
         alert("Failed to upload image. Please try again.");
