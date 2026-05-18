@@ -3,8 +3,11 @@
 import React, { useState, useCallback, useRef } from "react";
 import { Package, IndianRupee, Tags, AlignLeft, Phone, UploadCloud, ArrowRight, X, Loader2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function AddListingPage() {
+  const router = useRouter();
+  
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -75,14 +78,25 @@ export default function AddListingPage() {
 
       const finalPayload = {
         ...formData,
+        price: parseFloat(formData.price),
         images: cloudinaryUrls,
       };
 
-      console.log("🔥 FINAL COMPLETE PAYLOAD:", finalPayload);
-      alert("Check console for the complete payload including Cloudinary URLs!");
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("Failed to upload images. Please try again.");
+      const response = await fetch("/api/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save listing");
+      }
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      alert(error.message || "Failed to post listing. Please try again.");
     } finally {
       setIsUploading(false);
     }
