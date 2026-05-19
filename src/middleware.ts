@@ -14,8 +14,8 @@ export default withAuth(
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
-    // 2. If already onboarded and trying to access /onboarding or /, redirect to /dashboard
-    if (token && isOnboarded && (pathname === "/onboarding" || pathname === "/")) {
+    // 2. If already onboarded and trying to access /onboarding, redirect to /dashboard
+    if (token && isOnboarded && pathname === "/onboarding") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
@@ -38,7 +38,8 @@ export const config = {
   matcher: [
     "/",
     "/dashboard/:path*", 
-    "/onboarding", 
+    "/onboarding",
+    "/add-listing", 
     "/home/:path*",
     // Add other protected routes here
   ],

@@ -15,7 +15,7 @@ const mockListings = [
     title: "Engineering Drawing Kit (Complete Set)",
     price: 800,
     category: "Books & Material",
-    imageUrl: "https://images.unsplash.com/photo-1616628188540-9e6b3ee387d7?w=800&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1611244419377-b0a760c19719?q=80&w=800&auto=format&fit=crop",
     whatsapp: "919876543210",
   },
   {
