@@ -1,64 +1,96 @@
-import Image from "next/image";
+import React from "react";
+import ProductCard from "@/components/ProductCard";
 
-export default function Home() {
+const mockListings = [
+  {
+    id: "1",
+    title: "MacBook Air M1 - Pristine Condition",
+    price: 55000,
+    category: "Electronics",
+    imageUrl: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&q=80",
+    whatsapp: "919876543210",
+  },
+  {
+    id: "2",
+    title: "Engineering Drawing Kit (Complete Set)",
+    price: 800,
+    category: "Books & Material",
+    imageUrl: "https://images.unsplash.com/photo-1616628188540-9e6b3ee387d7?w=800&q=80",
+    whatsapp: "919876543210",
+  },
+  {
+    id: "3",
+    title: "Mini Fridge 45L - Perfect for Hostel",
+    price: 4500,
+    category: "Hostel Essentials",
+    imageUrl: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=800&q=80",
+    whatsapp: "919876543210",
+  },
+  {
+    id: "4",
+    title: "Sony WH-1000XM4 Noise Cancelling Headphones",
+    price: 18000,
+    category: "Gadgets",
+    imageUrl: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800&q=80",
+    whatsapp: "919876543210",
+  },
+  {
+    id: "5",
+    title: "Bicycle - Hero Sprint 21 Gear",
+    price: 3200,
+    category: "Other",
+    imageUrl: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800&q=80",
+    whatsapp: "919876543210",
+  },
+  {
+    id: "6",
+    title: "Calculus Early Transcendentals 8th Ed",
+    price: 450,
+    category: "Books & Material",
+    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80",
+    whatsapp: "919876543210",
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-black text-white relative overflow-hidden pb-24">
+      {/* Background flares */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] right-[10%] w-[40%] h-[40%] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-[20%] left-[-10%] w-[30%] h-[30%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse delay-1000" />
+      </div>
+
+      <main className="max-w-7xl mx-auto px-6 pt-32 space-y-20">
+        {/* Hero Section */}
+        <section className="text-center space-y-6 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-zinc-300 mb-4">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Campus Marketplace
+          </div>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter">
+            Discover Campus <br />
+            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              Essentials.
+            </span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg md:text-xl text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+            The exclusive peer-to-peer marketplace for students. Buy, sell, and trade safely within your college community.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
+
+        {/* Feed Section */}
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold tracking-tight">Latest Listings</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {mockListings.map((listing) => (
+              <ProductCard key={listing.id} {...listing} />
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
