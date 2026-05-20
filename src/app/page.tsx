@@ -1,58 +1,38 @@
 import React from "react";
 import ProductCard from "@/components/ProductCard";
+import clientPromise from "@/lib/mongodb";
+import { PackagePlus } from "lucide-react";
+import Link from "next/link";
 
-const mockListings = [
-  {
-    id: "1",
-    title: "MacBook Air M1 - Pristine Condition",
-    price: 55000,
-    category: "Electronics",
-    imageUrl: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&q=80",
-    whatsapp: "919876543210",
-  },
-  {
-    id: "2",
-    title: "Engineering Drawing Kit (Complete Set)",
-    price: 800,
-    category: "Books & Material",
-    imageUrl: "https://images.unsplash.com/photo-1611244419377-b0a760c19719?q=80&w=800&auto=format&fit=crop",
-    whatsapp: "919876543210",
-  },
-  {
-    id: "3",
-    title: "Mini Fridge 45L - Perfect for Hostel",
-    price: 4500,
-    category: "Hostel Essentials",
-    imageUrl: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=800&q=80",
-    whatsapp: "919876543210",
-  },
-  {
-    id: "4",
-    title: "Sony WH-1000XM4 Noise Cancelling Headphones",
-    price: 18000,
-    category: "Gadgets",
-    imageUrl: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800&q=80",
-    whatsapp: "919876543210",
-  },
-  {
-    id: "5",
-    title: "Bicycle - Hero Sprint 21 Gear",
-    price: 3200,
-    category: "Other",
-    imageUrl: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800&q=80",
-    whatsapp: "919876543210",
-  },
-  {
-    id: "6",
-    title: "Calculus Early Transcendentals 8th Ed",
-    price: 450,
-    category: "Books & Material",
-    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80",
-    whatsapp: "919876543210",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+async function getListings() {
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    const listings = await db
+      .collection("listings")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+      
+    return listings.map(listing => ({
+      id: listing._id.toString(),
+      title: listing.title,
+      price: listing.price,
+      category: listing.category,
+      imageUrl: listing.images && listing.images.length > 0 ? listing.images[0] : "",
+      whatsapp: listing.whatsapp,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch listings directly:", error);
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const listings = await getListings();
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden pb-24">
       {/* Background flares */}
@@ -85,11 +65,29 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold tracking-tight">Latest Listings</h2>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mockListings.map((listing) => (
-              <ProductCard key={listing.id} {...listing} />
-            ))}
-          </div>
+          {listings.length === 0 ? (
+            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-12 text-center flex flex-col items-center max-w-2xl mx-auto">
+              <div className="bg-black/50 p-4 rounded-full mb-4">
+                <PackagePlus size={32} className="text-zinc-500" />
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No listings found</h3>
+              <p className="text-zinc-400 mb-6">
+                There are currently no items for sale. Be the first to post something!
+              </p>
+              <Link
+                href="/add-listing"
+                className="px-6 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 transition-colors"
+              >
+                Post an Item
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {listings.map((listing) => (
+                <ProductCard key={listing.id} {...listing} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </div>
