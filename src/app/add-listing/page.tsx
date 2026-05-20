@@ -20,6 +20,7 @@ export default function AddListingPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [accessDeniedError, setAccessDeniedError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = (newFiles: FileList | File[]) => {
@@ -67,6 +68,7 @@ export default function AddListingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAccessDeniedError(null);
     if (files.length === 0) {
       alert("Please upload at least one image.");
       return;
@@ -87,6 +89,11 @@ export default function AddListingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalPayload),
       });
+
+      if (response.status === 403) {
+        setAccessDeniedError("Access Denied: Your account is awaiting admin approval.");
+        return;
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -144,6 +151,18 @@ export default function AddListingPage() {
             List your product on CampusKart. Fast, secure, and peer-to-peer.
           </p>
         </div>
+
+        {accessDeniedError && (
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+            <div className="p-1 bg-red-500/20 rounded-full mt-0.5">
+              <X size={16} className="text-red-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-red-400">Action Not Allowed</h3>
+              <p className="text-sm text-red-400/80 mt-1">{accessDeniedError}</p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid gap-6">

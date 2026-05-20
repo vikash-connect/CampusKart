@@ -24,6 +24,14 @@ export async function POST(request: NextRequest) {
     // @ts-ignore
     const sellerId = session.user.id;
 
+    const userDoc = await db.collection("users").findOne({ _id: new ObjectId(sellerId) });
+    if (!userDoc || userDoc.verificationStatus !== "approved") {
+      return NextResponse.json(
+        { error: "Your student ID is pending admin verification. You cannot list items yet." },
+        { status: 403 }
+      );
+    }
+
     const newListing = {
       title,
       price: parseFloat(price),
