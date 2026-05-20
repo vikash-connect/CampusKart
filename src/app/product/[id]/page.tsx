@@ -10,6 +10,16 @@ interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
 
+function generateWhatsAppLink(phone: string, title: string) {
+  let cleanNumber = phone.replace(/\D/g, "");
+  if (cleanNumber.length === 10) {
+    cleanNumber = "91" + cleanNumber;
+  }
+  const message = `Hi! I saw your listing for *${title}* on CampusKart. Is it still available?`;
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
+}
+
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
 
@@ -78,7 +88,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Call to Action */}
             <div className="mt-12 pt-8 border-t border-white/10">
               <Link
-                href={`https://wa.me/${listing.whatsapp}`}
+                href={generateWhatsAppLink(listing.whatsapp, listing.title)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-lg rounded-2xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_rgba(16,185,129,0.3)]"
