@@ -1,37 +1,51 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
-import clientPromise from "@/lib/mongodb";
-import { PackagePlus } from "lucide-react";
-import Link from "next/link";
+import { Search, Loader2 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+const categories = ["All", "Books", "Electronics", "Gadgets", "Hostel Essentials", "Other"];
 
-async function getListings() {
-  try {
-    const client = await clientPromise;
-    const db = client.db();
-    const listings = await db
-      .collection("listings")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-      
-    return listings.map(listing => ({
-      id: listing._id.toString(),
-      title: listing.title,
-      price: listing.price,
-      category: listing.category,
-      imageUrl: listing.images && listing.images.length > 0 ? listing.images[0] : "",
-      whatsapp: listing.whatsapp,
-    }));
-  } catch (error) {
-    console.error("Failed to fetch listings directly:", error);
-    return [];
-  }
-}
+export default function HomePage() {
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
 
-export default async function HomePage() {
-  const listings = await getListings();
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchListings(searchQuery, activeCategory);
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, activeCategory]);
+
+  const fetchListings = async (search: string, category: string) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (category && category !== "All") params.append("category", category);
+
+      const res = await fetch(`/api/listings?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        const formattedListings = data.listings.map((listing: any) => ({
+          id: listing._id,
+          title: listing.title,
+          price: listing.price,
+          category: listing.category,
+          imageUrl: listing.images && listing.images.length > 0 ? listing.images[0] : "",
+          whatsapp: listing.whatsapp,
+        }));
+        setListings(formattedListings);
+      }
+    } catch (error) {
+      console.error("Failed to fetch listings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden pb-24">
@@ -41,7 +55,7 @@ export default async function HomePage() {
         <div className="absolute top-[20%] left-[-10%] w-[30%] h-[30%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse delay-1000" />
       </div>
 
-      <main className="max-w-7xl mx-auto px-6 pt-32 space-y-20">
+      <main className="max-w-7xl mx-auto px-6 pt-32 space-y-16">
         {/* Hero Section */}
         <section className="text-center space-y-6 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-zinc-300 mb-4">
@@ -59,27 +73,64 @@ export default async function HomePage() {
           </p>
         </section>
 
+        {/* Search & Filters */}
+        <section className="space-y-6 max-w-4xl mx-auto">
+          {/* Search Input */}
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-emerald-400 transition-colors">
+              <Search size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search for laptops, textbooks, bicycles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-transparent transition-all shadow-xl"
+            />
+          </div>
+
+          {/* Category Filters */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold transition-all snap-start ${
+                  activeCategory === category
+                    ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] scale-105"
+                    : "bg-zinc-900/50 border border-white/10 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* Feed Section */}
         <section>
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold tracking-tight">Latest Listings</h2>
-          </div>
-          
-          {listings.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="animate-spin text-emerald-500" size={32} />
+            </div>
+          ) : listings.length === 0 ? (
             <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-12 text-center flex flex-col items-center max-w-2xl mx-auto">
               <div className="bg-black/50 p-4 rounded-full mb-4">
-                <PackagePlus size={32} className="text-zinc-500" />
+                <Search size={32} className="text-zinc-500" />
               </div>
-              <h3 className="text-xl font-medium text-white mb-2">No listings found</h3>
+              <h3 className="text-xl font-medium text-white mb-2">No items match your search</h3>
               <p className="text-zinc-400 mb-6">
-                There are currently no items for sale. Be the first to post something!
+                Try adjusting your search query or selecting a different category.
               </p>
-              <Link
-                href="/add-listing"
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveCategory("All");
+                }}
                 className="px-6 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 transition-colors"
               >
-                Post an Item
-              </Link>
+                Clear Filters
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

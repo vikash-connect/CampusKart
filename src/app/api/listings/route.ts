@@ -45,14 +45,31 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get("search");
+    const category = searchParams.get("category");
+
+    const query: any = {};
+
+    if (category && category !== "All") {
+      query.category = category;
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
     const client = await clientPromise;
     const db = client.db();
 
     const listings = await db
       .collection("listings")
-      .find({})
+      .find(query)
       .sort({ createdAt: -1 })
       .toArray();
 
