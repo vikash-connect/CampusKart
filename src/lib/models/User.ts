@@ -11,6 +11,7 @@ export interface IUser {
   collegeName?: string;
   hostelDetails?: string;
   studentIdUrl?: string;
+  verificationStatus?: "pending" | "approved" | "rejected";
   isVerified: boolean;
   isOnboarded: boolean;
   

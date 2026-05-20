@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       { 
         $set: { 
           studentIdUrl: result.secure_url,
-          isVerified: true 
+          verificationStatus: "pending"
         } 
       }
     );
