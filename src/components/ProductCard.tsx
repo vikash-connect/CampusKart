@@ -23,7 +23,7 @@ export default function ProductCard({
   return (
     <div className="group flex flex-col bg-zinc-900/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/5">
       {/* Image Container */}
-      <div className="relative aspect-square w-full bg-zinc-950 overflow-hidden">
+      <Link href={`/product/${id}`} className="relative block aspect-square w-full bg-zinc-950 overflow-hidden cursor-pointer">
         <Image
           src={imageUrl}
           alt={title}
@@ -31,17 +31,19 @@ export default function ProductCard({
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Category Badge */}
-        <div className="absolute top-3 left-3 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-bold tracking-widest uppercase text-zinc-300">
+        <div className="absolute top-3 left-3 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-bold tracking-widest uppercase text-zinc-300 pointer-events-none">
           {category}
         </div>
-      </div>
+      </Link>
 
       {/* Content Container */}
       <div className="p-5 flex flex-col flex-grow justify-between gap-4">
         <div>
-          <h3 className="font-semibold text-lg text-white line-clamp-2 leading-snug" title={title}>
-            {title}
-          </h3>
+          <Link href={`/product/${id}`}>
+            <h3 className="font-semibold text-lg text-white line-clamp-2 leading-snug hover:text-emerald-400 transition-colors" title={title}>
+              {title}
+            </h3>
+          </Link>
           <div className="flex items-center text-emerald-400 font-bold mt-2 text-xl">
             <IndianRupee size={18} className="mr-0.5" />
             {price.toLocaleString("en-IN")}
