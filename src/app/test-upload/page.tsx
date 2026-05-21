@@ -14,8 +14,9 @@ export default async function TestUploadPage() {
       const client = await clientPromise;
       const db = client.db();
       // @ts-ignore
+      const userId = session.user.id;
       const user = await db.collection("users").findOne({ 
-        _id: new ObjectId(session.user.id) 
+        _id: new ObjectId(userId) 
       });
       
       if (user) {
